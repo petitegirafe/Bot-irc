@@ -1,7 +1,7 @@
 #!/usr/bin/env python 
 # -*- coding: utf-8 -*-
 
-'''python 2'''
+
 
 import socket, time, sys, string
 
