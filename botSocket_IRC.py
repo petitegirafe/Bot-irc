@@ -1,7 +1,6 @@
 #!/usr/bin/env python 
 # -*- coding: utf-8 -*-
 
-#https://www.youtube.com/watch?v=MDKWP4fp74s
 
 import socket, time, sys, string
 
