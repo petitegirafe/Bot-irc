@@ -53,8 +53,8 @@ class IrcBot:
 	def on_rot47(self, message, channel):
 		rot47Table = string.maketrans('!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~',
 		            				'PQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNO')
-		rot47 = lambda s47 : string.translate(s47, rot47Table)
-		self.ircsocket.send(bytes("PRIVMSG " + channel + " : " + rot47(message) + '\n'))
+		message =  message.translate(rot47Table)
+		self.ircsocket.send(bytes("PRIVMSG " + channel + " : " + message + '\n'))
 		print('[Reponse]: ' + botnick + ': ' + message)	
 		
 		
