@@ -1,12 +1,12 @@
 #!/usr/bin/env python 
 # -*- coding: utf-8 -*-
-
+'''python 2'''
 
 import socket, time, sys, string
 
 PORT = 	6667
 server = "irc.root-me.org" # Ou autres 
-channel = "#testBot" #root-me #cyber-nux 
+channel = "#testBot" 
 botnick = "hackuza" # nom donné au bot 
 # speudo des administrateurs pour pouvoir controler le bot 
 adminBot = ["petitegirafe", "AUtreAdmin", "admin"] 
