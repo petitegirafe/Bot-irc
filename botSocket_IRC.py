@@ -39,7 +39,7 @@ class IrcBot:
 			ircmsg = self.ircsocket.recv(2048)
 			print(ircmsg).strip('\n\r')# affichage pseudo 
 			
-			
+	# check la commande pour appeller la fonction adéquat		
 	def check_common(self, usr_common,  message, channel):
 		message = message[len(usr_common.split()[0]):]
 		if usr_common == ":!rot13":
@@ -80,13 +80,15 @@ class IrcBot:
 			
 	# Admin bot administrer le bot 		
 	def on_adminBot(self, name, message, channel):
-		adm_common = message.split('(')[0] # ici on coupe directement à la parenthèse 
-		if adm_common in [":print", ":exit"]:
-			if adm_common == ":print":
+		r = re.search(r"^:!.+", message)
+		if r:
+			adm_common = r.group(0).split()[0]
+			message = message[len(adm_common.split()[0]):] 
+			if adm_common == ":!print":
 				# si print in commande le bot j'envoie ce que l'on lui à ecrie dans le canal public 
-				print('[Public]:' + botnick + ": " + message.split('(')[1].strip(')'))
-				self.ircsocket.send(bytes("PRIVMSG " + channel + " " + message.split('(')[1].strip(')') + '\n'))
-			if adm_common == ":exit":
+				print('[Public]:' + botnick + ": " + message.strip())
+				self.ircsocket.send(bytes("PRIVMSG " + channel + " " + message.strip() + '\n'))
+			if adm_common == ":!exit":
 				# Si la commande est "exit(" le bot dit aurevoir et ce deconnect
 				self.ircsocket.send(bytes("PRIVMSG " + channel + " : Bye all !!!\n"))
 				self.ircsocket.send(bytes("QUIT \n"))#deconnection
@@ -109,13 +111,13 @@ class IrcBot:
 			
 	# Fonction appellée quand le message est public
 	def on_pubmsg(self, name, message, channel):
-		# recherche si usr common si message commence par !
-		usr_common = re.findall(r"^:!.+", message)[0].split()[0]
-		if usr_common in [":!rot13", ":!rot47"]: 
+		r = re.search(r"^:!.+", message)
+		if r: # Si la ligne commence bien par :! 
+			usr_common = r.group(0).split()[0]
 			self.check_common(usr_common, message, channel)
 			pass
 		else:# Sinon
-			print('[Public]: '+ name + ' ' + message)#on affiche seulement le message dans le terminal
+			print('[Public]: '+ name + ' ' + message.strip())#on affiche seulement le message dans le terminal
 						
 				
 	# Notre fonction principal , elle contiendra notre boucle principal d'événements .
