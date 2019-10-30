@@ -3,11 +3,11 @@
 
 
 
-import socket, time, sys, string
+import socket, time, sys, string, re 
 
 PORT = 	6667
 server = "irc.root-me.org" # Ou autres 
-channel = "#testBot" 
+channel = "#testBot" # nom du channel ou se connecter
 botnick = "hackuza" # nom donné au bot 
 # speudo des administrateurs pour pouvoir controler le bot 
 adminBot = ["petitegirafe", "AUtreAdmin", "admin"] 
@@ -39,6 +39,14 @@ class IrcBot:
 			ircmsg = self.ircsocket.recv(2048)
 			print(ircmsg).strip('\n\r')# affichage pseudo 
 			
+			
+	def check_common(self, usr_common,  message, channel):
+		message = message[len(usr_common.split()[0]):]
+		if usr_common == ":!rot13":
+			self.on_rot13(message ,channel)	
+		if usr_common == ":!rot47":	
+			self.on_rot47(message ,channel)
+	
 			
 	def ping(self):# repond au ping pour ne pas être déconecté
 		self.ircsocket.send(bytes("PONG :pong\n"))
@@ -101,15 +109,10 @@ class IrcBot:
 			
 	# Fonction appellée quand le message est public
 	def on_pubmsg(self, name, message, channel):
-		usr_common = message[:7] # recuperation des 7 premiers caracteres
-		# Si les 7 premiers caractére font partie d'une commande
-		if usr_common in [":rot13(", ":rot47("]:
-			if usr_common == ":rot13(":
-				#si la commande est Rot13
-				self.on_rot13(message[7:],channel)# on appelle la fonction rot13 en lui envoyant le message en suprimant les 7 premier caractères
-			if usr_common == ":rot47(":
-				#si la commande est Rot13
-				self.on_rot47(message[7:], channel) # pareil que pour rot13
+		# recherche si usr common si message commence par !
+		usr_common = re.findall(r"^:!.+", message)[0].split()[0]
+		if usr_common in [":!rot13", ":!rot47"]: 
+			self.check_common(usr_common, message, channel)
 			pass
 		else:# Sinon
 			print('[Public]: '+ name + ' ' + message)#on affiche seulement le message dans le terminal
