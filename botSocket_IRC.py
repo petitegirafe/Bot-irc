@@ -41,7 +41,7 @@ class IrcBot:
 			
 	# check la commande pour appeller la fonction adéquat		
 	def check_common(self, usr_common,  message, channel):
-		message = message[len(usr_common.split()[0]):]
+		message = message[len(usr_common):]
 		if usr_common == ":!rot13":
 			self.on_rot13(message ,channel)	
 		if usr_common == ":!rot47":	
@@ -55,14 +55,14 @@ class IrcBot:
 		rot13Table = string.maketrans("ABCDEFGHIJKLMabcdefghijklmNOPQRSTUVWXYZnopqrstuvwxyz",
 		                              "NOPQRSTUVWXYZnopqrstuvwxyzABCDEFGHIJKLMabcdefghijklm")
 		message =  message.translate(rot13Table)
-		self.ircsocket.send(bytes("PRIVMSG " + channel + " : " + message + '\n'))
+		self.ircsocket.send(bytes("PRIVMSG " + channel + " : " + message.strip() + '\n'))
 		print('[Reponse]: ' + botnick + ': ' + message)
 		
 	def on_rot47(self, message, channel):
 		rot47Table = string.maketrans('!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~',
 		            				'PQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNO')
 		message =  message.translate(rot47Table)
-		self.ircsocket.send(bytes("PRIVMSG " + channel + " : " + message + '\n'))
+		self.ircsocket.send(bytes("PRIVMSG " + channel + " : " + message.strip() + '\n'))
 		print('[Reponse]: ' + botnick + ': ' + message)	
 		
 		
@@ -80,10 +80,9 @@ class IrcBot:
 			
 	# Admin bot administrer le bot 		
 	def on_adminBot(self, name, message, channel):
-		r = re.search(r"^:!.+", message)
-		if r:
-			adm_common = r.group(0).split()[0]
-			message = message[len(adm_common.split()[0]):] 
+		if re.match(r"^:![a-zA-Z0-9_]+", message):
+			adm_common = message.split()[0]
+			message = message[len(adm_common):] 
 			if adm_common == ":!print":
 				# si print in commande le bot j'envoie ce que l'on lui à ecrie dans le canal public 
 				print('[Public]:' + botnick + ": " + message.strip())
@@ -106,15 +105,15 @@ class IrcBot:
 		else : # Sinon
 			print('[Privé-]: ' + name +": " + message)
 			# On envoi le message ho je suis un bot à l'envoyeur
-			self.ircsocket.send(bytes("PRIVMSG " + name + " :Ho je suis un bot \n"))
+			self.ircsocket.send(bytes("PRIVMSG " + name + " :Ho !!! je suis un bot !!! \n"))
 			
 			
 	# Fonction appellée quand le message est public
 	def on_pubmsg(self, name, message, channel):
-		r = re.search(r"^:!.+", message)
-		if r: # Si la ligne commence bien par :! 
-			usr_common = r.group(0).split()[0]
+		if re.match(r"^:![a-zA-Z0-9_]+", message): # Si la ligne commence bien par :! 
+			usr_common = message.split()[0]
 			self.check_common(usr_common, message, channel)
+			print('[Public]: '+ name + ' ' + message.strip())
 			pass
 		else:# Sinon
 			print('[Public]: '+ name + ' ' + message.strip())#on affiche seulement le message dans le terminal
