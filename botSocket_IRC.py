@@ -12,6 +12,8 @@ botnick = "hackuza" # nom donné au bot
 # speudo des administrateurs pour pouvoir controler le bot 
 adminBot = ["petitegirafe", "AUtreAdmin", "admin"] 
 
+normal, jaune, rouge, vert, magenta = '\033[0m', '\033[33m', '\033[31m', '\033[32m', '\033[35m'
+
 class IrcBot:
 	# On Initialise maintenant notre Class :
 	def __init__(self):
@@ -56,14 +58,14 @@ class IrcBot:
 		                              "NOPQRSTUVWXYZnopqrstuvwxyzABCDEFGHIJKLMabcdefghijklm")
 		message =  message.translate(rot13Table)
 		self.ircsocket.send(bytes("PRIVMSG " + channel + " : " + message.strip() + '\n'))
-		print('[Reponse]: ' + botnick + ': ' + message)
+		print(magenta +'['+ botnick +'][rot13]:'+ normal + message)
 		
 	def on_rot47(self, message, channel):
 		rot47Table = string.maketrans('!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~',
 		            				'PQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNO')
 		message =  message.translate(rot47Table)
 		self.ircsocket.send(bytes("PRIVMSG " + channel + " : " + message.strip() + '\n'))
-		print('[Reponse]: ' + botnick + ': ' + message)	
+		print(magenta +'['+ botnick +'][rot47]:'+ normal + message)	
 		
 		
 	# Fonction qui va déterminer si le message est privé ou public	
@@ -84,16 +86,19 @@ class IrcBot:
 			adm_common = message.split()[0]
 			message = message[len(adm_common):] 
 			if adm_common == ":!print":
-				# si print in commande le bot j'envoie ce que l'on lui à ecrie dans le canal public 
-				print('[Public]:' + botnick + ": " + message.strip())
+				# si print in commande le bot j'envoie ce que l'on lui à ecrie dans le canal public
+				print(rouge +'[Privé]:'+ normal  + jaune + name + ":"+ normal + "!print --> "+ message.strip()) 
+				print(vert +'[Public]:'+ normal  + jaune + botnick + ":"+ normal + message.strip())
 				self.ircsocket.send(bytes("PRIVMSG " + channel + " " + message.strip() + '\n'))
 			if adm_common == ":!exit":
 				# Si la commande est "exit(" le bot dit aurevoir et ce deconnect
+				print(rouge +'[Privé]:'+ normal  + jaune + name + ":"+ normal + "!exit ")
+				print(vert +'[Public]:'+ normal  + jaune + botnick + ":"+ normal + "Bye all !!!")
 				self.ircsocket.send(bytes("PRIVMSG " + channel + " : Bye all !!!\n"))
 				self.ircsocket.send(bytes("QUIT \n"))#deconnection
 				sys.exit()# fin du programme
 		else:# Sinon il recrie se que l'on à écrie dans le terminal
-			print('[Privé ]: ' + name +": " + message)
+			print(rouge +'[Privé ]:'+ normal + jaune + name +":"+ normal + message)
 			
 					
 	# Fonction appellée quand le bot reçoit un message privé	
@@ -103,7 +108,7 @@ class IrcBot:
 			self.on_adminBot(name, message, channel)
 			pass
 		else : # Sinon
-			print('[Privé-]: ' + name +": " + message)
+			print(rouge +'[Privé]:'+ normal + jaune + name + normal +": " + message)
 			# On envoi le message ho je suis un bot à l'envoyeur
 			self.ircsocket.send(bytes("PRIVMSG " + name + " :Ho !!! je suis un bot !!! \n"))
 			
@@ -112,11 +117,11 @@ class IrcBot:
 	def on_pubmsg(self, name, message, channel):
 		if re.match(r"^:![a-zA-Z0-9_]+", message): # Si la ligne commence bien par :! 
 			usr_common = message.split()[0]
+			print(vert +'[Public]:' + normal + jaune + name +normal+ message.strip())
 			self.check_common(usr_common, message, channel)
-			print('[Public]: '+ name + ' ' + message.strip())
 			pass
 		else:# Sinon
-			print('[Public]: '+ name + ' ' + message.strip())#on affiche seulement le message dans le terminal
+			print(vert +'[Public]:'+ normal + jaune + name + normal + message.strip())#on affiche seulement le message dans le terminal
 						
 				
 	# Notre fonction principal , elle contiendra notre boucle principal d'événements .
